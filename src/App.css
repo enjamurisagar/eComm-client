@@ -36,3 +36,24 @@
     transform: rotate(360deg);
   }
 }
+
+/* home top images */
+.home-middle-img {
+  height: 500px;
+  margin: auto;
+  border-radius: 40px;
+  z-index: 1;
+  transition: transform 0.9s;
+  opacity: 0.3;
+}
+.home-middle-img:hover {
+  transform: scale(1.05);
+  box-shadow: 0px 0px 20px;
+  opacity: 1;
+}
+
+@media screen and (min-width: 300px) and (max-width: 700px) {
+  .home-middle-img {
+    height: 200px;
+  }
+}
