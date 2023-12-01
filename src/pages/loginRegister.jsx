@@ -66,7 +66,7 @@ const Auth = () => {
   };
 
   return (
-    <Box width="100%" display="flex" justifyContent="center">
+    <Box width="100%" display="flex" justifyContent="center" mt={"3rem"}>
       <Box
         m="2rem auto"
         backgroundColor={palette.background.alt}

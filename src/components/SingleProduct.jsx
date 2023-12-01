@@ -20,9 +20,11 @@ import styled from "@emotion/styled";
 import Marquee from "react-fast-marquee";
 import ProductCard from "./ProductCard";
 import { useDispatch } from "react-redux";
+import GoToTop from "./goToTop";
 
 const SingleProduct = () => {
-  const { palette, isNonMobileScreens, mode, user, setUserCart } = Helper();
+  const { palette, isNonMobileScreens, mode, user, setUserCart, api } =
+    Helper();
   const dispatch = useDispatch();
   const [reload, setReload] = useState(false);
   const [product, setProduct] = useState([]);
@@ -60,7 +62,7 @@ const SingleProduct = () => {
   }, [id, reload]);
 
   const getSingleProduct = async () => {
-    const response = await fetch(`http://localhost:5000/products`);
+    const response = await fetch(`${api}/products`);
     const data = await response.json();
     const singleProduct = data.filter((product) => product._id === id);
     setProduct(singleProduct);
@@ -100,20 +102,17 @@ const SingleProduct = () => {
     } else if (review.message.trim() === "") {
       alert("Message cannot be empty");
     } else {
-      const response = await fetch(
-        `http://localhost:5000/products/product/review/${id}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            ...review,
-            picturePath: user.picturePath,
-            fullName: user.firstName + " " + user.lastName,
-          }),
-        }
-      );
+      const response = await fetch(`${api}/products/product/review/${id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...review,
+          picturePath: user.picturePath,
+          fullName: user.firstName + " " + user.lastName,
+        }),
+      });
       const data = await response.json();
       if (data === "success") {
         setReview({
@@ -126,16 +125,17 @@ const SingleProduct = () => {
   };
 
   const addToCart = async (product, productCount) => {
-    const response = await fetch(
-      `http://localhost:5000/auth/addToCart/${user?._id}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ product: product[0], productCount }),
-      }
-    );
+    if (!user) {
+      alert("Please register/login to add to cart");
+      return;
+    }
+    const response = await fetch(`${api}/auth/addToCart/${user?._id}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ product: product[0], productCount }),
+    });
 
     const data = await response.json();
 
@@ -159,7 +159,7 @@ const SingleProduct = () => {
   });
 
   return (
-    <Box>
+    <Box mt={"5rem"}>
       <Box
         sx={{
           width: "90%",
@@ -201,7 +201,7 @@ const SingleProduct = () => {
                 isImageActive[i].active && (
                   <CardMedia
                     component="img"
-                    image={`http://localhost:5000/assets/${product[0]?.productImagePath[i]}`}
+                    image={`${api}/assets/${product[0]?.productImagePath[i]}`}
                     alt={product.productImagePath}
                     sx={{
                       height: { xs: 200, md: 250 },
@@ -217,7 +217,7 @@ const SingleProduct = () => {
               <CardMedia
                 key={i}
                 component="img"
-                image={`http://localhost:5000/assets/${product[0]?.productImagePath[i]}`}
+                image={`${api}/assets/${product[0]?.productImagePath[i]}`}
                 alt={product.productImagePath}
                 sx={{
                   height: 50,
@@ -445,10 +445,7 @@ const SingleProduct = () => {
                     {/* profile icon */}
                     <CardMedia
                       component="img"
-                      image={
-                        `http://localhost:5000/assets/${review?.picturePath}` ||
-                        `http://localhost:5000/assets/motorola_mobile1.jpeg`
-                      }
+                      image={`${api}/assets/${review?.picturePath}`}
                       alt={product?.productImagePath}
                       sx={{
                         height: 40,
@@ -523,7 +520,7 @@ const SingleProduct = () => {
             /> */}
             <textarea
               className="text-area"
-              cols={isNonMobileScreens ? "45" : "40"}
+              cols={isNonMobileScreens ? "45" : "30"}
               rows="5"
               style={{
                 backgroundColor: palette.background.alt,
@@ -559,6 +556,7 @@ const SingleProduct = () => {
           <ProductCard product={product} noNeedOfAnyFunction={true} />
         ))}
       </Marquee>
+      <GoToTop />
     </Box>
   );
 };
